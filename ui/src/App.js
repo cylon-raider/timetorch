@@ -1,23 +1,17 @@
-import logo from './logo.svg';
+// src/App.js
+import React from 'react';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="drag-area">
+        <h1>🕰️ TimeTorch</h1>
+      </div>
+      <div className="content">
+        <p>This is your draggable transparent overlay app.</p>
+        <button className="no-drag">Click me</button>
+      </div>
     </div>
   );
 }

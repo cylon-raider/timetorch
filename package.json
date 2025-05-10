@@ -8,11 +8,19 @@
   "scripts": {
     "start": "electron .",
     "react-start": "cd ui && npm start",
-    "build": "cd ui && npm run build"
+    "build": "cd ui && npm run build",
+    "start-electron": "cd ui && npm run build && cd .. && npx electron .",
+    "craco-start": "cd ui && craco start",
+    "craco-build": "cd ui && craco build",
+    "craco-test": "cd ui && craco test"
   },
   "keywords": [],
   "devDependencies": {
-    "electron": "^36.2.0"
+    "electron": "^36.2.0",
+    "@craco/craco": "^7.1.0"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   }
 }
-

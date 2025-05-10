@@ -1,44 +1,53 @@
-// Import Electron's core modules to control the app and create windows
-const { app, BrowserWindow } = require('electron');
-
-// Import Node's built-in path module to handle file paths
+const { app, BrowserWindow, screen } = require('electron');
 const path = require('path');
 
-// Function that creates a new browser window (the TimeTorch overlay)
+const isDev = false; // Set to true if using localhost during development
+
 function createWindow() {
-  const win = new BrowserWindow({
-    // Set fixed size for the overlay (adjust as needed)
-    width: 400,
-    height: 120,
-
-    // Make background transparent (so it floats above other apps nicely)
-    transparent: true,
-
-    // Removes the OS frame (no minimize/maximize/close buttons)
-    frame: false,
-
-    // Keep this window always on top of other windows
-    alwaysOnTop: true,
-
-    // Enable use of preload.js and other web preferences
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js') // Optional but useful later
-    }
+    const primaryDisplay = screen.getPrimaryDisplay();
+    const { width, height } = primaryDisplay.workAreaSize; // excludes taskbar
+    const winWidth = 400;
+    const winHeight = 200;
+    const margin = 10;
+    
+    const win = new BrowserWindow({
+        width: winWidth,
+        height: winHeight,
+        x: width - winWidth - margin,
+        y: height - winHeight - margin,
+        transparent: true,
+        frame: false,
+        hasShadow: false,
+        alwaysOnTop: true,
+        webPreferences: {
+          preload: path.join(__dirname, 'preload.js'),
+          contextIsolation: true,
+          nodeIntegration: false
+        }
   });
 
-  // DEV MODE: Load React development server (from `npm run react-start`)
-  win.loadURL('http://localhost:3000');
+  // Load the app: either dev server or built static files
+  if (isDev) {
+    win.loadURL('http://localhost:3000');
+    win.webContents.openDevTools(); // Only open DevTools in dev mode
+  } else {
+    win.loadFile(path.join(__dirname, 'ui', 'build', 'index.html'));
+    win.webContents.openDevTools(); // Comment this out if you don’t want DevTools in prod
+  }
 
-  // PROD MODE (after running `npm run build`): Load the built static React files
-  // Uncomment this line and comment out the line above when you're ready to package the app
-  // win.loadFile(path.join(__dirname, 'ui/build/index.html'));
+  // Optional: You can position the window after load, or skip this
+  win.webContents.on('did-finish-load', () => {
+    win.webContents.send('set-window-position', { x: 100, y: 100 }); // Only works if you're handling this in renderer
+  });
 }
 
-// Once Electron is ready, create the window
+// Electron app lifecycle
 app.whenReady().then(createWindow);
 
-// Handle macOS-specific behavior where apps stay open until Cmd+Q
 app.on('window-all-closed', () => {
-  // On Windows/Linux, quit the app when all windows are closed
   if (process.platform !== 'darwin') app.quit();
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
